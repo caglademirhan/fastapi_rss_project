@@ -32,9 +32,24 @@ This project implements a REST API for extracting content from user-submitted UR
 
 ## Steps that I followed:
 
+- mkdir fastapi_rss_project
+- cd fastapi_rss_project
+- python -m venv venv
+- \venv\Scripts\activate (On Windows)
+- pip install fastapi uvicorn[standard] sqlalchemy databases python-jose (installing necessary dependencies, feedparser, pytest-mock, etc.)
+- created an free account on Auth0.
+- obtain Auth0 domain, client ID, and client secret and use them into main application.
+- for run the application and run the tests:
+
+```bash
+
+ uvicorn main:app --reload 
+ pytest tests/
+
+```
 
 You can clone the repository:
 
    ```bash
-   git clone <https://github.com/caglademirhan/fastapi_rss_project.git>
-   cd <fastapi_rss_project>
+   git clone https://github.com/caglademirhan/fastapi_rss_project.git
+   cd fastapi_rss_project
