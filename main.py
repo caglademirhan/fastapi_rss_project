@@ -1,5 +1,4 @@
 from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2AuthorizationCodeBearer
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -7,11 +6,32 @@ from databases import Database
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 import feedparser
+from authlib.integrations.starlette_client import OAuth
 
 # Configure Auth0
 AUTH0_DOMAIN = "dev-iequ56w4z8t4in3a.us.auth0.com"  
 AUTH0_CLIENT_ID = "hD0iYIYgufgo6SmFrNL6dB2u3zMN2vi4"  
 AUTH0_CLIENT_SECRET = "OVM4oYaVTyAX0kO4uGvcGbH2OYQbY2fn3JlJ45vhYAXidHUwGTTmW8cPid5ak1xZ"  
+
+# OAuth2 configuration for Auth0
+oauth = OAuth()
+
+# Register Auth0 with OAuth provider
+oauth.register(
+    name='auth0',
+    client_id=AUTH0_CLIENT_ID,
+    client_secret=AUTH0_CLIENT_SECRET,
+    authorize_url=f'https://{AUTH0_DOMAIN}/authorize',
+    authorize_params=None,
+    authorize_params_endpoint=None,
+    authorize_endpoint_params=None,
+    authorize_response=None,
+    token_url=f'https://{AUTH0_DOMAIN}/oauth/token',
+    refresh_token_url=None,
+    refresh_token_params=None,
+    redirect_uri='http://localhost:8000/login/callback',
+    client_kwargs={'scope': 'openid profile email'},
+)
 
 # Configure SQLite database
 DATABASE_URL = "sqlite:///./test.db"
@@ -103,7 +123,7 @@ async def login_for_access_token(code: str, state: str, current_user: dict = Dep
     }
 
     # Request the token from Auth0
-    response = await oauth2_scheme.token_request(token_url, method="POST", data=token_payload)
+    response = await oauth.token_request(token_url, method="POST", data=token_payload)
 
     # Extract user information from the token
     user_info = jwt.decode(response["access_token"], AUTH0_CLIENT_SECRET, algorithms=["HS256"])
